@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link href="https://fonts.googleapis.com/css?family=Roboto&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed&display=swap" rel="stylesheet">
+        <link href="./css/main.css" rel="stylesheet">
+        <title>Статистика</title>
+    </head>
+    <body>
+        <div class="window">
+            <!-- Заголовок страницы и выбор даты-->
+            <div class="v1"> </div>
+            <span class="v2"> Посещаемость студентов </span>
+            <span class="v3"> Институт информационных технологий и анализа данных </span>
+            <div class="v4">
+                <div class="v5"> </div> 
+                <div class="v6"> <input type="date" id="start" name="trip-start" value="2022-09-01" min="2018-01-01" max="2018-12-31"> </div>
+                <div class="v7"> <input type="date" id="start" name="trip-start" value="2022-10-01" min="2018-01-01" max="2018-12-31"> </div>
+            </div>
+            <!-- Диаграмма групп -->
+            <div class="maincircle">
+                <div class="c1"></div>
+                <div class="c2"></div>
+                <div class="c3"></div>
+                <div class="c4"></div>
+                <span class="t1">1 курс</span>
+                <span class="t2">2 курс</span>
+                <span class="t3">3 курс</span>
+                <span class="t4">4 курс</span>
+                <span class="textcentr">Институт информационных технологий и анализа данных</span>
+                <div class="unit1"> <span class="text1">КСм-22-1</span> </div>
+                <div class="unit2"> <span class="text2">ЭВМб-22-1</span> </div>
+                <div class="unit3"> <span class="text3">ЭВМб-22-2</span> </div>    
+                <div class="unit4"> <span class="text4">АСУб-21-1</span> </div> 
+                <div class="unit5"> <span class="text5">АСУб-21-2</span> </div>
+                <div class="unit6"> <span class="text6">АСУб-21-3</span> </div>
+                <div class="unit7"> <span class="text7">АУДм-21-1</span> </div>
+                <div class="unit8"> <span class="text8">ИБб-21-1</span> </div>
+                <div class="unit9"> <span class="text9">ИБб-21-2</span> </div>
+                <div class="unit10"> <span class="text10">ИИТм-21-1</span> </div> 
+                <div class="unit11"> <span class="text11">ИСТб-21-1</span> </div>
+                <div class="unit12"> <span class="text12">ИСТб-21-2</span> </div>
+                <div class="unit13"> <span class="text13">ИСТб-21-3</span> </div>
+                <div class="unit14"> <span class="text14">КСм-21-1</span> </div>
+                <div class="unit15"> <span class="text15">ЭВМб-21-1</span> </div>
+                <div class="unit16"> <span class="text16">АСУб-20-1</span> </div>
+                <div class="unit17"> <span class="text17">АСУб-20-2</span> </div>
+                <div class="unit18"> <span class="text18">ИБб-20-1</span> </div>
+                <div class="unit19"> <span class="text19">ИБб-20-2</span> </div>
+                <div class="unit20"> <span class="text20">ИСТб-20-1</span> </div>
+                <div class="unit21"> <span class="text21">ИСТб-20-2</span> </div>
+                <div class="unit22"> <span class="text22">ИСТб-20-3</span> </div>
+                <div class="unit23"> <span class="text23">ЭВМб-20-1</span> </div>
+                <div class="unit24"> <span class="text24">АСУб-19-1</span> </div>
+                <div class="unit25"> <span class="text25">ИБб-19-1</span> </div>
+                <div class="unit26"> <span class="text26">ИБб-19-2</span> </div>
+                <div class="unit27"> <span class="text27">ИСМб-19-1</span> </div>
+                <div class="unit28"> <span class="text28">ИСТб-19-1</span> </div>
+                <div class="unit29"> <span class="text29">ИСТб-19-2</span> </div>
+                <div class="unit30"> <span class="text30">ЭВМб-19-1</span> </div>
+                <div class="unit31"> <span class="text31">АСУб-22-1</span> </div>
+                <div class="unit32"> <span class="text32">БКСм-22-1</span> </div>
+                <div class="unit33"> <span class="text33">ИБб-22-1</span> </div>
+                <div class="unit34"> <span class="text34">ИБб-22-2</span> </div>
+                <div class="unit35"> <span class="text35">ИИТм-22-1</span> </div>
+                <div class="unit36"> <span class="text36">ИСИб-22-1</span> </div>
+                <div class="unit37"> <span class="text37">ИСТб-22-1</span> </div>
+                <div class="unit38"> <span class="text38">ИСТб-22-2</span> </div>
+                <div class="unit39"> <span class="text39">ИСТб-22-3</span> </div>
+            </div>
+            <span class="procent">84.23%</span>
+            <span class="sred">Среднее значение посещаемости студентов по институту</span>
+            <!-- Вторая диаграмма  -->
+            <div class="dop_circle">  
+                <svg class="chart" width="200" height="200" viewBox="0 0 50 50">
+                  <circle class="cir1" r="15.9" cx="50%" cy="50%"></circle>
+                  <circle class="cir1" r="15.9" cx="50%" cy="50%"></circle>
+                  <circle class="cir1" r="15.9" cx="50%" cy="50%"></circle>
+                </svg>
+                <span class="pt1">48.08%</span>
+                <span class="pt2">34.62%</span>
+                <span class="pt3">17.31%</span>
+            </div>
+            <!-- Легенда второй диаграммы -->
+            <div class="legend">
+                <div class="legend1"></div>
+                <div class="legend2"></div>
+                <div class="legend3"></div>
+                <span class="tl1">> 85% посещаемости</span>
+                <span class="tl2">75 - 85% посещаемости</span>
+                <span class="tl3">< 75% посещаемости</span>
+            </div>
+            <!-- Надписи под второй диаграммой -->
+            <div class="sq1"></div>
+            <div class="sq2"></div>
+            <span class="sqtm1">ИСТб-20-2</span>
+            <span class="sqtm2">ИСТб-19-1</span>
+            <span class="sqt1">Группа с самым высоким показателем посещаемости</span>
+            <span class="sqt2">Группа с самым низким показателем посещаемости</span>
+        </div>
+    </body>
+</html>
