@@ -1,0 +1,22 @@
+.TestData {
+    font-size: 30px;
+    color: #2A2F66;
+    text-align: center;
+}
+
+.Table {
+    margin-left: auto;
+    margin-right: auto;
+    color: #2A2F66;
+    border-collapse: collapse;
+    border: 3px solid #2A2F66;
+}
+td{
+    text-align: center;
+    border: 2px solid #2A2F66;
+    color: #008CD1;
+}
+tr{
+    text-align: center;
+    border: 2px solid #2A2F66;
+}
