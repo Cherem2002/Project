@@ -1,0 +1,48 @@
+.Login {
+    text-align: center;
+    color: #2A2F66;
+    margin-bottom: 10px;
+}
+
+.Log {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2A2F66;
+}
+
+.Pass {
+    text-align: center;
+    margin-bottom: 10px;
+    color: #2A2F66;
+}
+
+.Log input,
+.Pass input {
+    width: 100px;
+    /* Устанавливаем ширину текстового поля в 100% от ширины родительского элемента */
+    padding: 5px;
+    /* Добавляем отступы вокруг текстового поля для улучшения внешнего вида */
+    box-sizing: border-box;
+    /* Учитываем padding в общей ширине элемента */
+}
+
+label {
+    width: 80px; /* Устанавливаем фиксированную ширину метки */
+    display: inline-block; /* Позволяет задать ширину элемента и использовать padding и margin */
+    text-align: right; /* Выравниваем текст метки по правому краю */
+    margin-right: 10px; /* Добавляем отступ между меткой и текстовым полем */
+}
+
+button {
+    color: #2A2F66; /* Цвет текста внутри кнопки */
+    background-color: #ffffff; /* Цвет фона кнопки */
+    border: 1px solid #2A2F66; /* Цвет границы кнопки */
+    padding: 10px 20px; /* Отступы внутри кнопки */
+    cursor: pointer; /* Изменяем курсор при наведении на кнопку */
+    transition: all 0.3s ease; /* Плавное изменение стилей при наведении */
+}
+
+button:hover {
+    background-color: #2A2F66; /* Цвет фона кнопки при наведении */
+    color: #ffffff; /* Цвет текста внутри кнопки при наведении */
+}
