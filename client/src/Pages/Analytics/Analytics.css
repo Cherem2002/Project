@@ -1,0 +1,9 @@
+.elem {
+    min-width: 20%;
+    max-width: 60%;
+    margin-bottom: 10px;
+}
+
+.buttondate {
+    width: 25px;
+}
