@@ -18,10 +18,6 @@ const app = express();
 
 app.use(cors());
 
-app.get('/', (req, res) => {
-  res.json('Hi');
-})
-
 app.use(bodyParser.json());
 
 app.post('/presence', (req, res, next) => {
@@ -59,30 +55,6 @@ app.post('/presence', (req, res, next) => {
     });
 })
 
-app.get('/s', (req, res) => {
-  pool.query('SELECT * FROM schedule', (error, result) => {
-    if (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-      res.status(500).send('Ошибка сервера');
-    } else {
-      // Отправка данных в виде JSON
-      res.json(result.rows);
-    }
-  });
-})
-
-app.get('/test', (req, res, next) => {
-  pool.query('SELECT * FROM attendance', (error, result) => {
-    if (error) {
-      console.error('Ошибка при выполнении запроса:', error);
-      res.status(500).send('Ошибка сервера');
-    } else {
-      // Отправка данных в виде JSON
-      res.json(result.rows);
-    }
-  });
-})
-
 app.post('/login', async (req, res) => {
   const { login, password } = req.body;
   try {
@@ -102,9 +74,9 @@ app.post('/login', async (req, res) => {
 
 app.get('/schedule/:idTeacher', (req, res) => {
   const { idTeacher } = req.params;
-  const today = new Date().toISOString().split('T')[0];
-  console.log(idTeacher, today);
-  pool.query('SELECT schedule.id_schedule,schedule.time, discipline.name_discipline, groups.name_group, office.name_office FROM schedule, discipline, groups, office WHERE schedule.id_teacher = $1 AND schedule.date = $2 and schedule.id_discipline = discipline.id_discipline and schedule.id_group = groups.id_group and schedule.id_office = office.id_office', [idTeacher, today], (error, result) => {
+  const { date } = req.query;
+  console.log(idTeacher, date);
+  pool.query('SELECT schedule.id_schedule,schedule.time, discipline.name_discipline, groups.name_group, office.name_office FROM schedule, discipline, groups, office WHERE schedule.id_teacher = $1 AND schedule.date = $2 and schedule.id_discipline = discipline.id_discipline and schedule.id_group = groups.id_group and schedule.id_office = office.id_office', [idTeacher, date], (error, result) => {
     if (error) {
       console.error('Ошибка при выполнении запроса:', error);
       res.status(500).send('Ошибка сервера');
@@ -125,6 +97,99 @@ app.get('/circle-chart-data/:idSchedule', async (req, res) => {
     res.status(500).send('Ошибка сервера');
   }
 })
+
+app.get('/groups/:idTeacher', async (req, res) => {
+  const { idTeacher } = req.params;
+  console.log(idTeacher);
+  pool.query('SELECT DISTINCT groups.name_group FROM schedule, groups WHERE schedule.id_teacher = $1', [idTeacher], (error, result) => {
+    if (error) {
+      console.error('Ошибка при выполнении запроса:', error);
+      res.status(500).send('Ошибка сервера');
+    } else {
+      res.json(result.rows);
+    }
+  });
+});
+
+app.get('/discipline/:idTeacher', async (req, res) => {
+  const { idTeacher } = req.params;
+  console.log(idTeacher);
+  pool.query('SELECT DISTINCT discipline.name_discipline FROM schedule, discipline WHERE schedule.id_teacher = $1', [idTeacher], (error, result) => {
+    if (error) {
+      console.error('Ошибка при выполнении запроса:', error);
+      res.status(500).send('Ошибка сервера');
+    } else {
+      res.json(result.rows);
+    }
+  });
+});
+
+app.get('/chart-data', async (req, res) => {
+  const { selectedGroups, selectedSubjects, startDate, endDate,idTeacher } = req.query;
+
+  try {
+    const groupColors = generateUniqueColors(selectedGroups.length);
+    const result = await pool.query(
+      `SELECT 
+        schedule.id_schedule, 
+        groups.name_group, 
+        discipline.name_discipline, 
+        COUNT(attendance.id_attendance) AS attendance
+      FROM 
+        schedule
+        LEFT JOIN groups ON schedule.id_group = groups.id_group
+        LEFT JOIN discipline ON schedule.id_discipline = discipline.id_discipline
+        LEFT JOIN attendance ON schedule.id_schedule = attendance.id_schedule
+      WHERE 
+        schedule.id_teacher = $1
+        AND groups.name_group = ANY($2::text[])
+        AND discipline.name_discipline = ANY($3::text[])
+        AND schedule.date BETWEEN $4 AND $5
+      GROUP BY 
+        schedule.id_schedule, 
+        groups.name_group, 
+        discipline.name_discipline`,
+      [idTeacher, selectedGroups, selectedSubjects, startDate, endDate]
+    );
+
+    const radarData = {
+      labels: selectedSubjects,
+      datasets: result.rows.map(item => {
+        const color = groupColors[selectedGroups.indexOf(item.name_group)];
+        return {
+          label: item.name_group,
+          data: [item.attendance],
+          backgroundColor: color,
+          borderColor: color,
+          borderWidth: 2,
+        };
+      }),
+    };
+
+    res.json(radarData);
+  } catch (error) {
+    console.error('Ошибка при выполнении запроса:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+function generateUniqueColors(count) {
+  const colors = [];
+  for (let i = 0; i < count; i++) {
+    colors.push(getRandomColor());
+  }
+  return colors;
+}
+
+// Генерация случайного цвета в формате HEX
+function getRandomColor() {
+  const letters = '0123456789ABCDEF';
+  let color = '#';
+  for (let i = 0; i < 6; i++) {
+    color += letters[Math.floor(Math.random() * 16)];
+  }
+  return color;
+}
 
 app.listen(4444, (err) => {
   if (err) {
