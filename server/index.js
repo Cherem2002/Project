@@ -22,40 +22,84 @@ app.use(bodyParser.json());
 
 app.post('/presence', (req, res, next) => {
   const data = req.body;
-  console.log('Принятые данные:', data);
+  console.log('Принятые данные:', req.body);
 
   // Преобразуйте "UID" из данных ESP32 в строку
   const idCardFromESP32 = data.UID;
-  const idSensor = 1;
-  const currentTime = new Date();
+  const idSensor = data.BID;
+  const time = data.timestamp;
 
   // Получите данные из базы данных и верните Id_Student в случае совпадения
-  pool.query('SELECT id_student FROM student,sensor WHERE uid_student = $1 and bid_sensor = $2', [idCardFromESP32,idSensor])
+  pool.query(`
+  SELECT 
+    s.id_schedule,
+    s.date,
+    s.id_group,
+    d.name_discipline,
+    o.name_office
+FROM 
+    student st
+JOIN 
+    schedule s ON st.id_group = s.id_group
+JOIN 
+    office o ON s.id_office = o.id_office
+JOIN 
+    discipline d ON s.id_discipline = d.id_discipline
+WHERE 
+    st.uid_student = $1
+    AND o.id_office IN (
+        SELECT id_office FROM sensor WHERE bid_sensor = $2
+    )
+    AND s.date = $3
+    AND s.date <= $3
+ORDER BY 
+    s.date DESC
+LIMIT 
+    1
+`,
+    [idCardFromESP32, idSensor, time]
+  )
     .then(result => {
       const matchingStudent = result.rows[0];
       if (matchingStudent) {
-        console.log('Студент найден:', matchingStudent);  
+        console.log('Студент найден:', matchingStudent);
         pool.query(
-        `SELECT s.id_group 
+          `SELECT s.id_group 
         FROM student AS st 
         JOIN schedule AS s ON st.id_group = s.id_group 
         WHERE st.id_student = $1
-        AND to_timestamp(s.time, 'HH24:MI') <= current_timestamp 
-        AND to_timestamp(s.time, 'HH24:MI') > current_timestamp - interval '1 minute'`,
-        [matchingStudent.id_student]
+        AND s.date <= $2 
+        AND s.date > $2 - interval '1 minute'`,
+          [matchingStudent.id_student,time]
         )
-        .then(result => {
-          // Обработка результата запроса здесь
-          if (result.rows.length > 0) {
-            // Студент найден и пришел вовремя или с опозданием до 1 минуты
-            console.log('Студент найден и пришел вовремя или с опозданием до 1 минуты');
-            // Ваш код для этого случая
-        } else {
-            // Студент найден и опоздал более, чем на 1 минуту
-            console.log('Студент найден и опоздал более, чем на 1 минуту');
-            // Ваш код для этого случая
-        }
-        })     
+          .then(result => {
+            // Обработка результата запроса здесь
+            if (result.rows.length > 0) {
+              // Студент найден и пришел вовремя или с опозданием до 1 минуты
+              console.log('Студент найден и пришел вовремя');
+              pool.query('UPDATE attendance SET presence = 1 WHERE id_student = $1', [matchingStudent.id_student])
+              .then(() => {
+                console.log('Значение Presence обновлено на 1');
+                res.status(200).send('Attended');
+              })
+              .catch(error => {
+                console.error('Ошибка при обновлении Presence:', error);
+                res.status(500).send('Server mistake');
+              });
+            } else {
+              // Студент найден и опоздал более, чем на 1 минуту
+              console.log('Студент найден и опоздал более, чем на 1 минуту');
+              pool.query('UPDATE attendance SET presence = 2 WHERE id_student = $1', [matchingStudent.id_student])
+              .then(() => {
+                console.log('Значение Presence обновлено на 2');
+                res.status(200).send('Attended');
+              })
+              .catch(error => {
+                console.error('Ошибка при обновлении Presence:', error);
+                res.status(500).send('Server mistake');
+              });
+            }
+          })
       } else {
         console.log('Студент не найден');
         res.status(200).send('Not found');
@@ -88,7 +132,11 @@ app.get('/schedule/:idTeacher', (req, res) => {
   const { idTeacher } = req.params;
   const { date } = req.query;
   console.log(idTeacher, date);
-  pool.query('SELECT schedule.id_schedule,schedule.time, discipline.name_discipline, groups.name_group, office.name_office FROM schedule, discipline, groups, office WHERE schedule.id_teacher = $1 AND schedule.date = $2 and schedule.id_discipline = discipline.id_discipline and schedule.id_group = groups.id_group and schedule.id_office = office.id_office', [idTeacher, date], (error, result) => {
+
+  // Преобразуем дату из строки в формат timestamp
+  const formattedDate = new Date(date);
+
+  pool.query('SELECT schedule.id_schedule, schedule.date, discipline.name_discipline, groups.name_group, office.name_office FROM schedule INNER JOIN discipline ON schedule.id_discipline = discipline.id_discipline INNER JOIN groups ON schedule.id_group = groups.id_group INNER JOIN office ON schedule.id_office = office.id_office WHERE schedule.id_teacher = $1 AND schedule.date::date = $2::date', [idTeacher, formattedDate], (error, result) => {
     if (error) {
       console.error('Ошибка при выполнении запроса:', error);
       res.status(500).send('Ошибка сервера');
@@ -98,9 +146,9 @@ app.get('/schedule/:idTeacher', (req, res) => {
   });
 });
 
+
 app.get('/circle-chart-data/:idSchedule', async (req, res) => {
   const { idSchedule } = req.params;
-  console.log(idSchedule);
   try {
     const result = await pool.query('SELECT attendance.id_schedule, attendance.presence FROM attendance WHERE attendance.id_schedule = $1', [idSchedule]);
     res.json(result.rows);
