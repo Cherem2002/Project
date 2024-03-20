@@ -1,0 +1,83 @@
+.schedule-container {
+    display: flex;
+    color: #2A2F66;
+}
+
+.schedule-table {
+    margin-left: 50px;
+    margin-right: 50px;
+    cursor: pointer;
+}
+
+.attendance-chart {
+    width: 450px;
+    height: 450px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.visible {
+    display: block;
+}
+
+.hidden {
+    display: none;
+}
+
+.selected-row {
+    background-color: lightgray;
+    border-bottom: auto;
+}
+
+table {
+    border-collapse: collapse;
+    min-width: 470px;
+    max-width: 100%;
+    margin-left: 30px;
+}
+
+table,
+th,
+td {
+    border: 1px solid black;
+}
+
+th,
+td {
+    padding: 8px;
+    text-align: left;
+}
+
+.date-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #f0f0f0;
+    margin-left: 30px;
+    min-width: 450px;
+    max-width: 100%;
+}
+
+.date-navigation button {
+    cursor: pointer;
+    background-color: transparent;
+    border: none;
+    font-size: 10px;
+    padding: 5px;
+}
+
+.totalStudents {
+    min-width: 20%;
+    max-width: 60%;
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.buttontable{
+    width: 15px;
+    height: 15px;   
+}
