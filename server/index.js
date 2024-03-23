@@ -25,9 +25,15 @@ app.post('/presence', (req, res, next) => {
   console.log('Принятые данные:', req.body);
 
   // Преобразуйте "UID" из данных ESP32 в строку
-  const idCardFromESP32 = data.UID;
-  const idSensor = data.BID;
-  const time = data.timestamp;
+  const idCardFromESP32 = data.uid;
+  const idSensor = data.bid;
+  //const time = "2024-03-23 12:30:00+08";
+  const timestamp = data.timestamp * 1000; // Преобразуем Unix timestamp в миллисекунды
+  const date = new Date(timestamp); // Создаем объект Date из полученного времени
+  date.setHours(date.getHours() + 8); // Прибавляем 8 часов
+  const time = date.toISOString();
+
+  console.log(time);
 
   // Получите данные из базы данных и верните Id_Student в случае совпадения
   pool.query(`
@@ -36,7 +42,8 @@ app.post('/presence', (req, res, next) => {
     s.date,
     s.id_group,
     d.name_discipline,
-    o.name_office
+    o.name_office,
+    st.id_student
 FROM 
     student st
 JOIN 
@@ -50,8 +57,7 @@ WHERE
     AND o.id_office IN (
         SELECT id_office FROM sensor WHERE bid_sensor = $2
     )
-    AND s.date = $3
-    AND s.date <= $3
+    AND $3::timestamp BETWEEN (s.date - INTERVAL '15 minutes') AND (s.date + INTERVAL '1 hour 30 minutes')
 ORDER BY 
     s.date DESC
 LIMIT 
@@ -61,15 +67,16 @@ LIMIT
   )
     .then(result => {
       const matchingStudent = result.rows[0];
+      console.log(matchingStudent);
       if (matchingStudent) {
-        console.log('Студент найден:', matchingStudent);
+        console.log('Студент найден:', matchingStudent.id_student,time);
         pool.query(
-          `SELECT s.id_group 
+        `SELECT s.id_group 
         FROM student AS st 
         JOIN schedule AS s ON st.id_group = s.id_group 
         WHERE st.id_student = $1
-        AND s.date <= $2 
-        AND s.date > $2 - interval '1 minute'`,
+        AND s.date <= $2::timestamp
+        AND s.date > $2::timestamp - interval '1 minute'`,
           [matchingStudent.id_student,time]
         )
           .then(result => {
